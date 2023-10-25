@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Hospital.Models;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,12 +25,27 @@ namespace Hospital.Utilities
         {
             try
             {
-
+                if (_context.Database.GetPendingMigrations().Count() > 0)
+                {
+                    _context.Database.Migrate();
+                }
             }
             catch (Exception)
             {
 
                 throw;
+            }
+            if (!_roleManager.RoleExistsAsync(WebsiteRoles.Website_Admin).GetAwaiter().GetResult())
+            {
+                _roleManager.CreateAsync(new IdentityRole(WebsiteRoles.Website_Admin)).GetAwaiter().GetResult();
+                _roleManager.CreateAsync(new IdentityRole(WebsiteRoles.Website_Patient)).GetAwaiter().GetResult();
+                _roleManager.CreateAsync(new IdentityRole(WebsiteRoles.Website_Doctor)).GetAwaiter().GetResult();
+                
+                _userManager.CreateAsync(new ApplicationUser
+                {
+                    UserName = "Rahat",
+                    Email = "rahat@gmail.com"
+                },"Rahat@123").GetAwaiter().GetResult();
             }
         }
     }
